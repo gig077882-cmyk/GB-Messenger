@@ -1,0 +1,4 @@
+#!/bin/sh
+# Gradle wrapper bootstrap script. The wrapper JAR is supplied by Gradle during dependency setup.
+APP_HOME=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+exec gradle -p "$APP_HOME" "$@"

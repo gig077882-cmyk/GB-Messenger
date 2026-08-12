@@ -1,0 +1,56 @@
+name: Android debug APK
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-debug-apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/android/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: npm ci
+      - name: TypeScript check
+        run: npm run typecheck --if-present
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Prepare Gradle wrapper
+        working-directory: apps/android/android
+        run: |
+          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
+            distribution_url=$(sed -n 's/^distributionUrl=//p' gradle/wrapper/gradle-wrapper.properties | sed 's#\\:#:#g')
+            gradle_version=$(basename "$distribution_url" | sed -E 's/^gradle-([0-9.]+)-(bin|all)\.zip$/\1/')
+            curl --fail --location --retry 3 --output gradle.zip "$distribution_url"
+            unzip -q gradle.zip "gradle-${gradle_version}/lib/plugins/gradle-wrapper-main-${gradle_version}.jar" "gradle-${gradle_version}/lib/gradle-wrapper-shared-${gradle_version}.jar"
+            mkdir -p gradle/wrapper
+            cp "gradle-${gradle_version}/lib/plugins/gradle-wrapper-main-${gradle_version}.jar" gradle/wrapper/gradle-wrapper.jar
+            cp "gradle-${gradle_version}/lib/gradle-wrapper-shared-${gradle_version}.jar" gradle/wrapper/
+            rm -rf gradle.zip "gradle-${gradle_version}"
+          fi
+          chmod +x gradlew
+      - name: Assemble debug APK
+        working-directory: apps/android/android
+        run: ./gradlew --no-daemon assembleDebug
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: krug-android-debug-apk
+          path: apps/android/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

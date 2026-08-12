@@ -1,0 +1,42 @@
+plugins {
+  id("com.android.application")
+  id("org.jetbrains.kotlin.android")
+  id("com.facebook.react")
+}
+
+react { autolinkLibrariesWithApp() }
+
+def enableProguardInReleaseBuilds = false
+def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
+
+def apiUrl = project.findProperty('KRUG_API_URL') ?: 'https://invalid.krug.local'
+def wsUrl = project.findProperty('KRUG_WS_URL') ?: 'wss://invalid.krug.local'
+
+android {
+  namespace "com.krug"
+  compileSdk rootProject.ext.compileSdkVersion
+
+  defaultConfig {
+    applicationId "com.krug"
+    minSdk rootProject.ext.minSdkVersion
+    targetSdk rootProject.ext.targetSdkVersion
+    versionCode 1
+    versionName "0.1.0"
+    buildConfigField "String", "KRUG_API_URL", "\"${apiUrl}\""
+    buildConfigField "String", "KRUG_WS_URL", "\"${wsUrl}\""
+  }
+
+  buildTypes {
+    debug { }
+    release {
+      minifyEnabled enableProguardInReleaseBuilds
+      proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+    }
+  }
+}
+
+dependencies {
+  implementation("com.facebook.react:react-android")
+  if (hermesEnabled.toBoolean()) implementation("com.facebook.react:hermes-android")
+  else implementation jscFlavor
+}
