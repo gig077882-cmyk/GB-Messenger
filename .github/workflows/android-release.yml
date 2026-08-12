@@ -1,0 +1,152 @@
+name: Publish Android debug APK and download site
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to publish (must start with v, for example v0.1.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: android-release-${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-release:
+    name: Build and publish test/debug APK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/android
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Resolve and validate release tag
+        id: release
+        shell: bash
+        run: |
+          tag="${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}"
+          if [[ ! "$tag" =~ ^v.+ ]]; then
+            echo "release_tag must start with v (for example, v0.1.0)." >&2
+            exit 1
+          fi
+          if [[ "$tag" == *$'\n'* || "$tag" == *'/'* || "$tag" == *'\\'* ]]; then
+            echo "release_tag contains unsupported characters." >&2
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/android/package-lock.json
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npm run typecheck --if-present
+
+      - name: Assemble test/debug APK with declared Gradle distribution
+        working-directory: apps/android/android
+        shell: bash
+        run: |
+          distribution_url=$(sed -n 's/^distributionUrl=//p' gradle/wrapper/gradle-wrapper.properties | sed 's#\\:#:#g')
+          gradle_version=$(basename "$distribution_url" | sed -E 's/^gradle-([0-9.]+)-(bin|all)\.zip$/\1/')
+          curl --fail --location --retry 3 --output gradle.zip "$distribution_url"
+          unzip -q gradle.zip
+          "$(pwd)/gradle-${gradle_version}/bin/gradle" --no-daemon assembleDebug
+          rm -rf gradle.zip "gradle-${gradle_version}"
+
+      - name: Prepare release assets and SHA-256 checksums
+        id: assets
+        working-directory: apps/android
+        shell: bash
+        run: |
+          tag='${{ steps.release.outputs.tag }}'
+          source_apk='android/app/build/outputs/apk/debug/app-debug.apk'
+          test_apk="GB-Messenger-${tag}-debug.apk"
+          latest_apk='GB-Messenger-latest.apk'
+          test -f "$source_apk"
+          mkdir -p release-assets
+          cp "$source_apk" "release-assets/$test_apk"
+          cp "$source_apk" "release-assets/$latest_apk"
+          (
+            cd release-assets
+            sha256sum "$test_apk" "$latest_apk" > checksums.txt
+          )
+          echo "directory=apps/android/release-assets" >> "$GITHUB_OUTPUT"
+
+      - name: Upload debug APK build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GB-Messenger-test-debug-${{ steps.release.outputs.tag }}
+          path: apps/android/release-assets/
+          if-no-files-found: error
+
+      - name: Create or update GitHub Release (test/debug APK)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          name: 'GB-Messenger ${{ steps.release.outputs.tag }} (test/debug)'
+          prerelease: true
+          generate_release_notes: true
+          body: |
+            ## Test/debug APK
+
+            This release contains an unsigned debug/test build created with `assembleDebug`. It is not a production-signed release.
+
+            Verify the APK files with `checksums.txt` before installation.
+          files: |
+            apps/android/release-assets/GB-Messenger-${{ steps.release.outputs.tag }}-debug.apk
+            apps/android/release-assets/GB-Messenger-latest.apk
+            apps/android/release-assets/checksums.txt
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  deploy-pages:
+    name: Deploy download site to GitHub Pages
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: download-site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

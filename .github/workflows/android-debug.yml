@@ -29,25 +29,16 @@ jobs:
       - run: npm ci
       - name: TypeScript check
         run: npm run typecheck --if-present
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-      - name: Prepare Gradle wrapper
+      - name: Assemble debug APK with declared Gradle distribution
         working-directory: apps/android/android
+        shell: bash
         run: |
-          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
-            distribution_url=$(sed -n 's/^distributionUrl=//p' gradle/wrapper/gradle-wrapper.properties | sed 's#\\:#:#g')
-            gradle_version=$(basename "$distribution_url" | sed -E 's/^gradle-([0-9.]+)-(bin|all)\.zip$/\1/')
-            curl --fail --location --retry 3 --output gradle.zip "$distribution_url"
-            unzip -q gradle.zip "gradle-${gradle_version}/lib/plugins/gradle-wrapper-main-${gradle_version}.jar" "gradle-${gradle_version}/lib/gradle-wrapper-shared-${gradle_version}.jar"
-            mkdir -p gradle/wrapper
-            cp "gradle-${gradle_version}/lib/plugins/gradle-wrapper-main-${gradle_version}.jar" gradle/wrapper/gradle-wrapper.jar
-            cp "gradle-${gradle_version}/lib/gradle-wrapper-shared-${gradle_version}.jar" gradle/wrapper/
-            rm -rf gradle.zip "gradle-${gradle_version}"
-          fi
-          chmod +x gradlew
-      - name: Assemble debug APK
-        working-directory: apps/android/android
-        run: ./gradlew --no-daemon assembleDebug
+          distribution_url=$(sed -n 's/^distributionUrl=//p' gradle/wrapper/gradle-wrapper.properties | sed 's#\\:#:#g')
+          gradle_version=$(basename "$distribution_url" | sed -E 's/^gradle-([0-9.]+)-(bin|all)\.zip$/\1/')
+          curl --fail --location --retry 3 --output gradle.zip "$distribution_url"
+          unzip -q gradle.zip
+          "$(pwd)/gradle-${gradle_version}/bin/gradle" --no-daemon assembleDebug
+          rm -rf gradle.zip "gradle-${gradle_version}"
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
