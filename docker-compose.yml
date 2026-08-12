@@ -1,0 +1,113 @@
+name: gb-messenger
+
+services:
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      HOST: ${HOST:-0.0.0.0}
+      PORT: ${PORT:-3000}
+      DATABASE_PATH: /app/data/krug.sqlite
+      STORAGE_PATH: /app/data/storage
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      ACCESS_TTL: ${ACCESS_TTL:-15m}
+      REFRESH_TTL_DAYS: ${REFRESH_TTL_DAYS:-30}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      MAX_USERS: ${MAX_USERS:-60}
+      MAX_FILE_BYTES: ${MAX_FILE_BYTES:-5368709120}
+      UPLOAD_CHUNK_BYTES: ${UPLOAD_CHUNK_BYTES:-8388608}
+      FILE_RETENTION_HOURS: ${FILE_RETENTION_HOURS:-72}
+      MAX_STORAGE_BYTES: ${MAX_STORAGE_BYTES:-322122547200}
+      MIN_FREE_BYTES: ${MIN_FREE_BYTES:-53687091200}
+    volumes:
+      - backend_data:/app/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    mem_limit: 512m
+    cpus: 0.65
+    networks: [internal]
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    mem_limit: 64m
+    cpus: 0.15
+    networks: [internal]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+    mem_limit: 128m
+    cpus: 0.20
+    networks: [internal]
+
+  coturn:
+    image: coturn/coturn:4.6-alpine
+    restart: unless-stopped
+    environment:
+      TURN_REALM: ${TURN_REALM}
+      TURN_EXTERNAL_IP: ${TURN_EXTERNAL_IP}
+      TURN_SHARED_SECRET: ${TURN_SHARED_SECRET}
+    entrypoint: ["/bin/sh", "/etc/coturn/entrypoint.sh"]
+    volumes:
+      - ./infra/coturn/turnserver.conf.template:/etc/coturn/turnserver.conf.template:ro
+      - ./infra/coturn/entrypoint.sh:/etc/coturn/entrypoint.sh:ro
+    ports:
+      - "3478:3478/tcp"
+      - "3478:3478/udp"
+      - "49160-49200:49160-49200/udp"
+    mem_limit: 128m
+    cpus: 0.20
+    networks: [internal]
+
+  backup:
+    build: ./infra/backup
+    restart: unless-stopped
+    environment:
+      DATABASE_PATH: /source/krug.sqlite
+      BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-86400}
+    volumes:
+      - backend_data:/source:ro
+      - backups:/backups
+      - ./docker-compose.yml:/config/docker-compose.yml:ro
+      - ./infra/caddy/Caddyfile:/config/Caddyfile:ro
+      - ./infra/coturn/turnserver.conf.template:/config/turnserver.conf.template:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    mem_limit: 128m
+    cpus: 0.15
+    networks: [internal]
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  backend_data:
+  caddy_data:
+  caddy_config:
+  backups:

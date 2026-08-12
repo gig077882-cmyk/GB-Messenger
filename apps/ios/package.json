@@ -1,0 +1,12 @@
+{
+  "name": "krug-ios-starter",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "start": "echo React Native shell is intentionally not generated; see README.md"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,37 @@
+.avatar {
+  position: relative;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: visible;
+}
+
+.img, .initials {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  object-fit: cover;
+}
+
+.initials {
+  color: #fff;
+  font-weight: 700;
+  user-select: none;
+}
+
+.xs  { width: 24px; height: 24px; font-size: 0.6rem; }
+.sm  { width: 36px; height: 36px; font-size: 0.75rem; }
+.md  { width: 44px; height: 44px; font-size: 0.9rem; }
+.lg  { width: 64px; height: 64px; font-size: 1.3rem; }
+
+.badge {
+  position: absolute;
+  bottom: 1px; right: 1px;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  border: 2px solid var(--color-surface);
+}
+
+.online  { background: var(--color-online); }
+.offline { background: var(--color-text-3); }

@@ -1,0 +1,29 @@
+.row { display:flex; align-items:flex-end; gap:6px; max-width:78%; position:relative; margin:2px 0; }
+.own { align-self:flex-end; flex-direction:row-reverse; }
+.avatar { margin-bottom:2px; }
+.wrap { position:relative; min-width:0; }
+.sender { display:block; font-size:.72rem; font-weight:700; color:var(--color-primary); margin:0 0 2px 8px; }
+.bubble { padding:8px 10px 5px; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); min-width:72px; word-break:break-word; }
+.ownBubble { background:var(--color-primary); color:#fff; border-bottom-right-radius:3px; }
+.otherBubble { background:var(--color-surface); color:var(--color-text); border-bottom-left-radius:3px; }
+.text { white-space:pre-wrap; font-size:.93rem; line-height:1.38; }
+.deleted { color:var(--color-text-2); font-style:italic; font-size:.85rem; }
+.meta { display:flex; justify-content:flex-end; gap:4px; align-items:center; margin-top:3px; color:inherit; opacity:.7; font-size:.65rem; }
+.status { color:#c3f6f4; font-weight:700; letter-spacing:-2px; }
+.replyPreview { border-left:3px solid var(--color-accent); padding:2px 6px; margin-bottom:5px; font-size:.78rem; opacity:.85; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:250px; }
+.file { display:block; color:inherit; font-size:.9rem; font-weight:600; padding:4px; }
+.reactions { display:flex; flex-wrap:wrap; gap:3px; margin-top:3px; }
+.own .reactions { justify-content:flex-end; }
+.reaction { background:var(--color-surface-2); border:1px solid var(--color-border); border-radius:12px; padding:2px 6px; font-size:.75rem; color:var(--color-text); }
+.reactionMine { border-color:var(--color-primary); background:rgba(103,80,164,.12); }
+.controls { position:absolute; top:0; left:calc(100% + 4px); display:none; gap:1px; align-items:center; z-index:4; }
+.own .controls { left:auto; right:calc(100% + 4px); }
+.wrap:hover .controls { display:flex; }
+.reactionPicker, .menu { position:absolute; top:34px; left:0; background:var(--color-surface); box-shadow:var(--shadow-md); border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:5px; z-index:5; white-space:nowrap; }
+.own .reactionPicker, .own .menu { left:auto; right:0; }
+.reactionPicker button { font-size:1.1rem; padding:4px; }
+.menu { min-width:150px; display:flex; flex-direction:column; }
+.menu button { text-align:left; padding:8px; font-size:.8rem; border-radius:5px; }
+.menu button:hover { background:var(--color-surface-2); }
+.danger { color:var(--color-error); }
+@media(max-width:768px){.row{max-width:88%;}.controls{display:none!important;}}

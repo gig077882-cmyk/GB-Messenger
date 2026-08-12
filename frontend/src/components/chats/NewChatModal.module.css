@@ -1,0 +1,50 @@
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tab, .tabActive {
+  flex: 1;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: background var(--transition), color var(--transition);
+}
+
+.tab { background: var(--color-surface-2); color: var(--color-text-2); }
+.tabActive { background: var(--color-primary); color: #fff; }
+
+.input {
+  margin-bottom: 12px;
+}
+
+.userList {
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.userItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  width: 100%;
+  text-align: left;
+  transition: background var(--transition);
+}
+
+.userItem:hover { background: var(--color-surface-2); }
+
+.userName { flex: 1; font-size: 0.9rem; font-weight: 500; }
+.check { color: var(--color-primary); font-weight: 700; width: 20px; text-align: center; }
+
+.empty {
+  padding: 20px;
+  text-align: center;
+  color: var(--color-text-3);
+  font-size: 0.875rem;
+}

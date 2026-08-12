@@ -1,0 +1,18 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--color-text-2);
+  transition: background var(--transition), color var(--transition), transform var(--transition);
+  flex-shrink: 0;
+}
+
+.btn:hover:not(:disabled) { background: var(--color-surface-2); color: var(--color-primary); }
+.btn:active:not(:disabled) { transform: scale(0.9); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.active { color: var(--color-primary) !important; }
+
+.sm { width: 32px; height: 32px; font-size: 1rem; }
+.md { width: 40px; height: 40px; font-size: 1.2rem; }
+.lg { width: 48px; height: 48px; font-size: 1.4rem; }

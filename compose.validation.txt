@@ -1,0 +1,350 @@
+name: gb-messenger
+services:
+  backend:
+    build:
+      context: E:\GB_Mesenger\backend
+      dockerfile: Dockerfile
+    cpus: 0.65
+    environment:
+      ACCESS_TTL: 15m
+      COOKIE_SECURE: "true"
+      DATABASE_PATH: /app/data/krug.sqlite
+      FILE_RETENTION_HOURS: "72"
+      HOST: 0.0.0.0
+      JWT_SECRET: REPLACE_WITH_A_RANDOM_SECRET_OF_AT_LEAST_32_CHARACTERS
+      MAX_FILE_BYTES: "5368709120"
+      MAX_STORAGE_BYTES: "322122547200"
+      MAX_USERS: "60"
+      MIN_FREE_BYTES: "53687091200"
+      NODE_ENV: production
+      PORT: "3000"
+      REFRESH_TTL_DAYS: "30"
+      STORAGE_PATH: /app/data/storage
+      UPLOAD_CHUNK_BYTES: "8388608"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 15s
+    mem_limit: "536870912"
+    networks:
+      internal: null
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: backend_data
+        target: /app/data
+        volume: {}
+  backup:
+    build:
+      context: E:\GB_Mesenger\infra\backup
+      dockerfile: Dockerfile
+    cpus: 0.15
+    depends_on:
+      backend:
+        condition: service_healthy
+        required: true
+    environment:
+      BACKUP_INTERVAL_SECONDS: "86400"
+      DATABASE_PATH: /source/krug.sqlite
+    mem_limit: "134217728"
+    networks:
+      internal: null
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: backend_data
+        target: /source
+        read_only: true
+        volume: {}
+      - type: volume
+        source: backups
+        target: /backups
+        volume: {}
+      - type: bind
+        source: E:\GB_Mesenger\docker-compose.yml
+        target: /config/docker-compose.yml
+        read_only: true
+        bind: {}
+      - type: bind
+        source: E:\GB_Mesenger\infra\caddy\Caddyfile
+        target: /config/Caddyfile
+        read_only: true
+        bind: {}
+      - type: bind
+        source: E:\GB_Mesenger\infra\coturn\turnserver.conf.template
+        target: /config/turnserver.conf.template
+        read_only: true
+        bind: {}
+  caddy:
+    cpus: 0.2
+    depends_on:
+      backend:
+        condition: service_healthy
+        required: true
+      frontend:
+        condition: service_started
+        required: true
+    environment:
+      DOMAIN: chat.example.com
+    image: caddy:2-alpine
+    mem_limit: "134217728"
+    networks:
+      internal: null
+    ports:
+      - mode: ingress
+        target: 80
+        published: "80"
+        protocol: tcp
+      - mode: ingress
+        target: 443
+        published: "443"
+        protocol: tcp
+      - mode: ingress
+        target: 443
+        published: "443"
+        protocol: udp
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: E:\GB_Mesenger\infra\caddy\Caddyfile
+        target: /etc/caddy/Caddyfile
+        read_only: true
+        bind: {}
+      - type: volume
+        source: caddy_data
+        target: /data
+        volume: {}
+      - type: volume
+        source: caddy_config
+        target: /config
+        volume: {}
+  coturn:
+    cpus: 0.2
+    entrypoint:
+      - /bin/sh
+      - /etc/coturn/entrypoint.sh
+    environment:
+      TURN_EXTERNAL_IP: 203.0.113.10
+      TURN_REALM: chat.example.com
+      TURN_SHARED_SECRET: REPLACE_WITH_A_LONG_RANDOM_TURN_SECRET
+    image: coturn/coturn:4.6-alpine
+    mem_limit: "134217728"
+    networks:
+      internal: null
+    ports:
+      - mode: ingress
+        target: 3478
+        published: "3478"
+        protocol: tcp
+      - mode: ingress
+        target: 3478
+        published: "3478"
+        protocol: udp
+      - mode: ingress
+        target: 49160
+        published: "49160"
+        protocol: udp
+      - mode: ingress
+        target: 49161
+        published: "49161"
+        protocol: udp
+      - mode: ingress
+        target: 49162
+        published: "49162"
+        protocol: udp
+      - mode: ingress
+        target: 49163
+        published: "49163"
+        protocol: udp
+      - mode: ingress
+        target: 49164
+        published: "49164"
+        protocol: udp
+      - mode: ingress
+        target: 49165
+        published: "49165"
+        protocol: udp
+      - mode: ingress
+        target: 49166
+        published: "49166"
+        protocol: udp
+      - mode: ingress
+        target: 49167
+        published: "49167"
+        protocol: udp
+      - mode: ingress
+        target: 49168
+        published: "49168"
+        protocol: udp
+      - mode: ingress
+        target: 49169
+        published: "49169"
+        protocol: udp
+      - mode: ingress
+        target: 49170
+        published: "49170"
+        protocol: udp
+      - mode: ingress
+        target: 49171
+        published: "49171"
+        protocol: udp
+      - mode: ingress
+        target: 49172
+        published: "49172"
+        protocol: udp
+      - mode: ingress
+        target: 49173
+        published: "49173"
+        protocol: udp
+      - mode: ingress
+        target: 49174
+        published: "49174"
+        protocol: udp
+      - mode: ingress
+        target: 49175
+        published: "49175"
+        protocol: udp
+      - mode: ingress
+        target: 49176
+        published: "49176"
+        protocol: udp
+      - mode: ingress
+        target: 49177
+        published: "49177"
+        protocol: udp
+      - mode: ingress
+        target: 49178
+        published: "49178"
+        protocol: udp
+      - mode: ingress
+        target: 49179
+        published: "49179"
+        protocol: udp
+      - mode: ingress
+        target: 49180
+        published: "49180"
+        protocol: udp
+      - mode: ingress
+        target: 49181
+        published: "49181"
+        protocol: udp
+      - mode: ingress
+        target: 49182
+        published: "49182"
+        protocol: udp
+      - mode: ingress
+        target: 49183
+        published: "49183"
+        protocol: udp
+      - mode: ingress
+        target: 49184
+        published: "49184"
+        protocol: udp
+      - mode: ingress
+        target: 49185
+        published: "49185"
+        protocol: udp
+      - mode: ingress
+        target: 49186
+        published: "49186"
+        protocol: udp
+      - mode: ingress
+        target: 49187
+        published: "49187"
+        protocol: udp
+      - mode: ingress
+        target: 49188
+        published: "49188"
+        protocol: udp
+      - mode: ingress
+        target: 49189
+        published: "49189"
+        protocol: udp
+      - mode: ingress
+        target: 49190
+        published: "49190"
+        protocol: udp
+      - mode: ingress
+        target: 49191
+        published: "49191"
+        protocol: udp
+      - mode: ingress
+        target: 49192
+        published: "49192"
+        protocol: udp
+      - mode: ingress
+        target: 49193
+        published: "49193"
+        protocol: udp
+      - mode: ingress
+        target: 49194
+        published: "49194"
+        protocol: udp
+      - mode: ingress
+        target: 49195
+        published: "49195"
+        protocol: udp
+      - mode: ingress
+        target: 49196
+        published: "49196"
+        protocol: udp
+      - mode: ingress
+        target: 49197
+        published: "49197"
+        protocol: udp
+      - mode: ingress
+        target: 49198
+        published: "49198"
+        protocol: udp
+      - mode: ingress
+        target: 49199
+        published: "49199"
+        protocol: udp
+      - mode: ingress
+        target: 49200
+        published: "49200"
+        protocol: udp
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: E:\GB_Mesenger\infra\coturn\turnserver.conf.template
+        target: /etc/coturn/turnserver.conf.template
+        read_only: true
+        bind: {}
+      - type: bind
+        source: E:\GB_Mesenger\infra\coturn\entrypoint.sh
+        target: /etc/coturn/entrypoint.sh
+        read_only: true
+        bind: {}
+  frontend:
+    build:
+      context: E:\GB_Mesenger\frontend
+      dockerfile: Dockerfile
+    cpus: 0.15
+    depends_on:
+      backend:
+        condition: service_healthy
+        required: true
+    mem_limit: "67108864"
+    networks:
+      internal: null
+    restart: unless-stopped
+networks:
+  internal:
+    name: gb-messenger_internal
+    driver: bridge
+volumes:
+  backend_data:
+    name: gb-messenger_backend_data
+  backups:
+    name: gb-messenger_backups
+  caddy_config:
+    name: gb-messenger_caddy_config
+  caddy_data:
+    name: gb-messenger_caddy_data
