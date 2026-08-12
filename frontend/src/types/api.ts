@@ -100,12 +100,19 @@ export type WsEvent =
   | { type: 'presence.online'; userId: string }
   | { type: 'presence.offline'; userId: string }
   | { type: 'message.created'; chatId: string; message: Message }
+  | { type: 'message.edited'; chatId: string; messageId: string }
+  | { type: 'message.pinned'; chatId: string; messageId: string }
+  | { type: 'message.unpinned'; chatId: string; messageId: string }
   | { type: 'message.deleted'; messageId: string; scope: 'me' | 'everyone' }
   | { type: 'message.delivered'; messageId: string; userId: string }
   | { type: 'message.read'; messageId: string; userId: string }
   | { type: 'reaction.updated'; messageId: string; userId: string; emoji: string; active: boolean }
   | { type: 'chat.member_added'; chatId: string; userId: string }
   | { type: 'chat.member_removed'; chatId: string; userId: string }
+  | { type: 'chat.disappearing_updated'; chatId: string; seconds: number | null }
+  | { type: 'poll.created'; chatId: string; poll: Record<string, unknown> }
+  | { type: 'poll.updated'; chatId: string; pollId: string; results: Array<{ id: string; text: string; votes: number }> }
+  | { type: 'user.blocked'; byUserId: string }
   | { type: 'typing.start'; chatId: string; userId: string }
   | { type: 'typing.stop'; chatId: string; userId: string }
   | { type: 'call.ringing'; callId: string; chatId: string; callerId: string }

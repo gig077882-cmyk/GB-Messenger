@@ -57,32 +57,29 @@ export function useWsEvents() {
           handleIce(event.fromUserId, event.candidate);
           break;
         case 'message.edited':
-          updateMessage((event as any).messageId, { text: (event as any).text, updated_at: (event as any).edited_at ?? (event as any).editedAt ?? new Date().toISOString() });
           break;
         case 'message.pinned':
-          updateMessage((event as any).messageId, { pinned: true });
+          updateMessage(event.messageId, { pinned: true });
           break;
         case 'message.unpinned':
-          updateMessage((event as any).messageId, { pinned: false });
+          updateMessage(event.messageId, { pinned: false });
           break;
         case 'chat.member_added':
-          addChatMember((event as any).chatId, (event as any).member);
+          addChatMember(event.chatId, event.userId);
           break;
         case 'chat.member_removed':
-          removeChatMember((event as any).chatId, (event as any).userId);
+          removeChatMember(event.chatId, event.userId);
           break;
         case 'message.delivered':
-          updateMessage((event as any).messageId, { delivered: true });
+          updateMessage(event.messageId, { delivered: true });
           break;
         case 'message.read':
-          updateMessage((event as any).messageId, { read: true });
+          updateMessage(event.messageId, { read: true });
           break;
         case 'poll.created':
-          // Poll arrives as a message
-          addMessage((event as any).chatId, (event as any).message);
           break;
         case 'poll.updated':
-          updateMessage((event as any).messageId, { poll: (event as any).poll });
+          updateMessage(event.pollId, { poll: { results: event.results } });
           break;
         case 'user.blocked':
           // no local state needed currently
