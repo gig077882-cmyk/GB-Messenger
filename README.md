@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Круг / GB-Messenger
 
 «Круг» — self-hosted мессенджер для небольшой закрытой группы до 60 пользователей. MVP рассчитан на запуск одного экземпляра backend на собственном сервере через Docker Compose.
@@ -107,3 +108,6 @@ GitHub Actions запускает проверку backend, сборку и те
 - [iOS-клиент: статус и план интеграции](apps/ios/README.md)
 - [Правила участия](CONTRIBUTING.md)
 - [Лицензия MIT](LICENSE)
+=======
+# GB-Messenger
+>>>>>>> cc57631ee1e02bad07d299160a72eff223b77888
