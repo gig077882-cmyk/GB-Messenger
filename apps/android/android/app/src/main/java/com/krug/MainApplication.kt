@@ -8,11 +8,12 @@ import com.facebook.react.ReactNativeHost
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.soloader.SoLoader
+import com.krug.update.UpdatePackage
 
 class MainApplication : Application(), ReactApplication {
   override val reactNativeHost: ReactNativeHost =
     object : DefaultReactNativeHost(this) {
-      override fun getPackages() = PackageList(this).packages
+      override fun getPackages() = PackageList(this).packages.apply { add(UpdatePackage()) }
 
       override fun getJSMainModuleName(): String = "index"
 

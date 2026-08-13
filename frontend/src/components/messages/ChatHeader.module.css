@@ -1,8 +1,43 @@
-.header { height: var(--header-height); display:flex; align-items:center; gap:8px; padding:8px 16px; border-bottom:1px solid var(--color-border); background:var(--color-surface); flex-shrink:0; }
+/* Header — glass effect */
+.header {
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--glass-border, var(--color-border));
+  background: var(--glass-bg, var(--color-surface));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  flex-shrink: 0;
+}
+
 .back { display:none; }
 .info { display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
 .text { display:flex; flex-direction:column; min-width:0; }
 .title { font-weight:700; font-size:.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.subtitle { font-size:.75rem; color:var(--color-online); }
+
+/* Online subtitle — pulse animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+.subtitle {
+  font-size: .75rem;
+  color: var(--color-online);
+}
+
+.subtitleOnline {
+  font-size: .75rem;
+  color: var(--color-online);
+  animation: pulse 2s ease-in-out infinite;
+}
+
 .actions { display:flex; gap:2px; }
-@media (max-width:768px) { .back { display:inline-flex; } .actions button:nth-child(3), .actions button:nth-child(4) { display:none; } }
+
+@media (max-width:768px) {
+  .back { display:inline-flex; }
+  .actions button:nth-child(3),
+  .actions button:nth-child(4) { display:none; }
+}

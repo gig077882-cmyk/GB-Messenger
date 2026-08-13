@@ -24,7 +24,11 @@
 .brandName {
   font-size: 1.2rem;
   font-weight: 800;
-  color: var(--color-primary);
+  /* Gradient text effect */
+  background: var(--color-gradient, linear-gradient(135deg, #6750A4 0%, #9A82DB 100%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .actions {
@@ -43,9 +47,13 @@
   border-radius: var(--radius-xl);
   padding: 8px 14px;
   font-size: 0.875rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
 
-.search:focus { border-color: var(--color-primary); }
+.search:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-alpha, rgba(103,80,164,0.14));
+}
 
 .archiveToggle {
   display: flex;
@@ -83,12 +91,21 @@
   width: 100%;
   text-align: left;
   border-radius: 0;
-  transition: background var(--transition);
+  transition: background var(--transition), transform 0.12s var(--easing-spring, ease);
   cursor: pointer;
+  position: relative;
 }
 
-.chatItem:hover { background: var(--color-surface-2); }
-.active { background: var(--color-surface-2) !important; }
+.chatItem:hover {
+  background: var(--color-surface-2);
+}
+
+/* Active item — gradient background + left accent bar */
+.active {
+  background: linear-gradient(135deg, var(--color-primary-alpha, rgba(103,80,164,0.14)) 0%, transparent 100%) !important;
+  border-left: 3px solid var(--color-primary);
+  padding-left: 13px; /* compensate for border */
+}
 
 .chatInfo {
   flex: 1;

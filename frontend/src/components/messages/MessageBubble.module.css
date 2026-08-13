@@ -3,9 +3,35 @@
 .avatar { margin-bottom:2px; }
 .wrap { position:relative; min-width:0; }
 .sender { display:block; font-size:.72rem; font-weight:700; color:var(--color-primary); margin:0 0 2px 8px; }
-.bubble { padding:8px 10px 5px; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); min-width:72px; word-break:break-word; }
-.ownBubble { background:var(--color-primary); color:#fff; border-bottom-right-radius:3px; }
-.otherBubble { background:var(--color-surface); color:var(--color-text); border-bottom-left-radius:3px; }
+
+/* Base bubble */
+.bubble {
+  padding:8px 10px 5px;
+  border-radius:var(--radius-md);
+  box-shadow:var(--shadow-sm);
+  min-width:72px;
+  word-break:break-word;
+  transition: transform 0.18s var(--easing-spring, cubic-bezier(0.34,1.56,0.64,1)),
+              box-shadow var(--transition);
+}
+.bubble:hover { transform: scale(1.01); }
+
+/* Own bubble — gradient */
+.ownBubble {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark, #4A3880) 100%);
+  color: #fff;
+  border-bottom-right-radius: 3px;
+  box-shadow: var(--shadow-sm), 0 2px 12px rgba(103,80,164,0.28);
+}
+
+/* Other bubble — glass */
+.otherBubble {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-bottom-left-radius: 3px;
+  box-shadow: var(--shadow-sm), 0 1px 6px rgba(0,0,0,0.06);
+}
+
 .text { white-space:pre-wrap; font-size:.93rem; line-height:1.38; }
 .deleted { color:var(--color-text-2); font-style:italic; font-size:.85rem; }
 .meta { display:flex; justify-content:flex-end; gap:4px; align-items:center; margin-top:3px; color:inherit; opacity:.7; font-size:.65rem; }
@@ -16,14 +42,59 @@
 .own .reactions { justify-content:flex-end; }
 .reaction { background:var(--color-surface-2); border:1px solid var(--color-border); border-radius:12px; padding:2px 6px; font-size:.75rem; color:var(--color-text); }
 .reactionMine { border-color:var(--color-primary); background:rgba(103,80,164,.12); }
-.controls { position:absolute; top:0; left:calc(100% + 4px); display:none; gap:1px; align-items:center; z-index:4; }
+
+/* Controls — fade+scale animation instead of display:none/flex */
+@keyframes controlsIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.controls {
+  position:absolute;
+  top:0;
+  left:calc(100% + 4px);
+  display:flex;
+  gap:1px;
+  align-items:center;
+  z-index:4;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.85);
+  transition: opacity 0.15s ease, transform 0.15s var(--easing-spring, cubic-bezier(0.34,1.56,0.64,1));
+}
 .own .controls { left:auto; right:calc(100% + 4px); }
-.wrap:hover .controls { display:flex; }
-.reactionPicker, .menu { position:absolute; top:34px; left:0; background:var(--color-surface); box-shadow:var(--shadow-md); border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:5px; z-index:5; white-space:nowrap; }
+.wrap:hover .controls {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+/* Reaction picker & menu — glass + fade-in */
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.reactionPicker, .menu {
+  position:absolute;
+  top:34px;
+  left:0;
+  background: var(--glass-bg, var(--color-surface));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-lg, var(--shadow-md));
+  border: 1px solid var(--glass-border, var(--color-border));
+  border-radius: var(--radius-sm);
+  padding:5px;
+  z-index:5;
+  white-space:nowrap;
+  animation: popIn 0.18s var(--easing-spring, cubic-bezier(0.34,1.56,0.64,1)) both;
+}
 .own .reactionPicker, .own .menu { left:auto; right:0; }
 .reactionPicker button { font-size:1.1rem; padding:4px; }
 .menu { min-width:150px; display:flex; flex-direction:column; }
-.menu button { text-align:left; padding:8px; font-size:.8rem; border-radius:5px; }
+.menu button { text-align:left; padding:8px; font-size:.8rem; border-radius:5px; transition: background var(--transition); }
 .menu button:hover { background:var(--color-surface-2); }
 .danger { color:var(--color-error); }
+
 @media(max-width:768px){.row{max-width:88%;}.controls{display:none!important;}}

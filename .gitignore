@@ -14,6 +14,12 @@ build/
 .vite/
 .vitest/
 
+# Android release signing (templates remain tracked)
+**/keystore.properties
+**/*.jks
+**/*.keystore
+!**/keystore.properties.example
+
 # Environment files: keep only safe templates
 .env
 .env.*
@@ -88,3 +94,17 @@ temp/
 *.swp
 *.swo
 *~
+# Local Android/Gradle state and generated release assets
+**/.gradle/
+**/local.properties
+*.apk
+*.aab
+*.apks
+*.zip
+
+# Local validation output and accidental shell artifacts
+build-badging.txt
+build-signature.txt
+compose.validation.txt
+/UTF-8
+/backend/{

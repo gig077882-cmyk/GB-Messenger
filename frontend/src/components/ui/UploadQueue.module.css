@@ -1,0 +1,319 @@
+/* ─── Panel ─────────────────────────────────────────────────────────────── */
+.panel {
+  position: fixed;
+  bottom: 80px;
+  right: 16px;
+  z-index: 100;
+  width: 320px;
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: slideInUp 0.25s var(--easing-spring, cubic-bezier(0.34, 1.56, 0.64, 1)) both;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--glass-border);
+  flex-shrink: 0;
+  background: var(--color-surface, rgba(255, 255, 255, 0.04));
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  letter-spacing: 0.01em;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btnClear {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-2);
+  cursor: pointer;
+  transition: var(--transition, all 0.15s ease);
+}
+
+.btnClear:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+.btnToggle {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-2);
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition, all 0.15s ease);
+  line-height: 1;
+}
+
+.btnToggle:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+/* ─── List ───────────────────────────────────────────────────────────────── */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.list::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 2px;
+}
+
+/* ─── Item ───────────────────────────────────────────────────────────────── */
+.item {
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--color-border);
+  transition: var(--transition, all 0.15s ease);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.item:hover {
+  background: var(--color-surface-2);
+  border-color: var(--color-primary-light, var(--color-primary));
+}
+
+/* status tints */
+.item_uploading {
+  border-left: 3px solid var(--color-primary);
+}
+
+.item_paused {
+  border-left: 3px solid var(--color-accent);
+}
+
+.item_done {
+  border-left: 3px solid var(--color-online);
+  opacity: 0.75;
+}
+
+.item_error {
+  border-left: 3px solid var(--color-error);
+}
+
+.item_pending {
+  border-left: 3px solid var(--color-border);
+}
+
+/* ─── Item top row ───────────────────────────────────────────────────────── */
+.itemTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fileIcon {
+  font-size: 16px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.fileInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.fileName {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fileMeta {
+  font-size: 11px;
+  color: var(--color-text-3);
+}
+
+.retryBadge {
+  color: var(--color-accent);
+}
+
+.itemStatus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+/* ─── Status icons & labels ──────────────────────────────────────────────── */
+.statusUploading,
+.statusPaused,
+.statusDone,
+.statusError,
+.statusPending {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.statusUploading { color: var(--color-primary); }
+.statusPaused    { color: var(--color-accent); }
+.statusDone      { color: var(--color-online); }
+.statusError     { color: var(--color-error); }
+.statusPending   { color: var(--color-text-3); }
+
+.statusLabelUploading,
+.statusLabelPaused,
+.statusLabelDone,
+.statusLabelError,
+.statusLabelPending {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.statusLabelUploading { color: var(--color-primary); }
+.statusLabelPaused    { color: var(--color-accent); }
+.statusLabelDone      { color: var(--color-online); }
+.statusLabelError     { color: var(--color-error); }
+.statusLabelPending   { color: var(--color-text-3); }
+
+/* ─── Remove button ──────────────────────────────────────────────────────── */
+.btnRemove {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--color-text-3);
+  font-size: 11px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: var(--transition, all 0.15s ease);
+  padding: 0;
+}
+
+.btnRemove:hover {
+  background: var(--color-error);
+  color: #fff;
+}
+
+/* ─── Progress bar ───────────────────────────────────────────────────────── */
+.progressTrack {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-surface-2, rgba(255, 255, 255, 0.08));
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.progressBarActive {
+  background: var(--color-gradient, linear-gradient(90deg, var(--color-primary), var(--color-primary-light, var(--color-accent))));
+  animation: shimmer 1.6s linear infinite;
+  background-size: 200% 100%;
+}
+
+.progressBarPaused {
+  background: var(--color-accent);
+  opacity: 0.6;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+/* ─── Error text ─────────────────────────────────────────────────────────── */
+.errorText {
+  font-size: 11px;
+  color: var(--color-error);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+/* ─── Action buttons ─────────────────────────────────────────────────────── */
+.itemActions {
+  display: flex;
+  gap: 6px;
+}
+
+.btnAction {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-2);
+  cursor: pointer;
+  transition: var(--transition, all 0.15s ease);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.btnAction:hover {
+  background: var(--color-primary-alpha, rgba(99, 102, 241, 0.15));
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}

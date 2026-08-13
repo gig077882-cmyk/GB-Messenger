@@ -8,6 +8,9 @@ beforeEach(async()=>{db=openDatabase(':memory:');app=await buildApp({config:cfg,
 afterEach(async()=>{await app.close();db.close()});
 const bootstrap=async()=>{const r=await app.inject({method:'POST',url:'/api/auth/bootstrap',payload:{email:'owner@example.com',password:'very-secure-pass',displayName:'Owner'}});return {body:r.json(),cookie:r.cookies[0]?.value}};
 
+describe('releases',()=>{
+ it('publishes a cacheable Android update manifest without authentication',async()=>{const response=await app.inject({method:'GET',url:'/api/releases/android/latest'});expect(response.statusCode).toBe(200);expect(response.headers['cache-control']).toContain('max-age=300');expect(response.json()).toMatchObject({platform:'android',version:'0.1.0',versionCode:1,minSupportedVersionCode:1});expect(response.json().downloadUrl).toMatch(/^https:\/\//)});
+});
 describe('auth',()=>{
  it('bootstraps only one owner and logs in',async()=>{const first=await bootstrap();expect(first.body.user.role).toBe('owner');expect((await app.inject({method:'POST',url:'/api/auth/bootstrap',payload:{email:'x@y.com',password:'very-secure-pass',displayName:'X'}})).statusCode).toBe(409);const login=await app.inject({method:'POST',url:'/api/auth/login',payload:{email:'owner@example.com',password:'very-secure-pass'}});expect(login.statusCode).toBe(200);expect(login.json().accessToken).toBeTruthy()});
  it('registers with a single-use invitation',async()=>{const {body}=await bootstrap();const inv=await app.inject({method:'POST',url:'/api/invites',headers:{authorization:`Bearer ${body.accessToken}`},payload:{role:'member'}});const payload={email:'member@example.com',password:'member-secure-pass',displayName:'Member',inviteToken:inv.json().inviteToken};expect((await app.inject({method:'POST',url:'/api/auth/register',payload})).statusCode).toBe(201);expect((await app.inject({method:'POST',url:'/api/auth/register',payload:{...payload,email:'two@example.com'}})).statusCode).toBe(400)});

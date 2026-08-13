@@ -22,6 +22,12 @@ const schema = z.object({
   CALL_RECONNECT_GRACE_SECONDS: z.coerce.number().int().min(10).max(300).default(45),
   TURN_SHARED_SECRET: z.string().optional(),
   TURN_HOST: z.string().optional(),
+  ANDROID_RELEASE_VERSION: z.string().min(1).default('0.1.0'),
+  ANDROID_RELEASE_VERSION_CODE: z.coerce.number().int().nonnegative().default(1),
+  ANDROID_MIN_VERSION_CODE: z.coerce.number().int().nonnegative().default(1),
+  ANDROID_RELEASE_URL: z.string().url().default('https://github.com/gig077882-cmyk/GB-Messenger/releases/latest/download/GB-Messenger-latest.apk'),
+  ANDROID_RELEASE_SHA256: z.preprocess((value) => value === '' ? undefined : value, z.string().regex(/^[a-f0-9]{64}$/i).optional()),
+  ANDROID_RELEASE_NOTES: z.string().max(2000).default('Исправления ошибок и улучшения безопасности.'),
 });
 
 export type Config = z.infer<typeof schema>;

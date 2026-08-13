@@ -20,6 +20,12 @@ services:
       FILE_RETENTION_HOURS: ${FILE_RETENTION_HOURS:-72}
       MAX_STORAGE_BYTES: ${MAX_STORAGE_BYTES:-322122547200}
       MIN_FREE_BYTES: ${MIN_FREE_BYTES:-53687091200}
+      ANDROID_RELEASE_VERSION: ${ANDROID_RELEASE_VERSION:-0.1.0}
+      ANDROID_RELEASE_VERSION_CODE: ${ANDROID_RELEASE_VERSION_CODE:-1}
+      ANDROID_MIN_VERSION_CODE: ${ANDROID_MIN_VERSION_CODE:-1}
+      ANDROID_RELEASE_URL: ${ANDROID_RELEASE_URL:-https://github.com/gig077882-cmyk/GB-Messenger/releases/latest/download/GB-Messenger-latest.apk}
+      ANDROID_RELEASE_SHA256: ${ANDROID_RELEASE_SHA256:-}
+      ANDROID_RELEASE_NOTES: ${ANDROID_RELEASE_NOTES:-Исправления ошибок и улучшения безопасности.}
     volumes:
       - backend_data:/app/data
     healthcheck:

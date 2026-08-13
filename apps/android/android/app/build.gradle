@@ -11,6 +11,30 @@ def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
 def apiUrl = project.findProperty('KRUG_API_URL') ?: 'https://invalid.krug.local'
 def wsUrl = project.findProperty('KRUG_WS_URL') ?: 'wss://invalid.krug.local'
+def releaseVersionName = project.findProperty('KRUG_VERSION_NAME') ?: '0.1.0'
+def releaseVersionCode = (project.findProperty('KRUG_VERSION_CODE') ?: '1') as Integer
+
+def signingProperties = new Properties()
+def signingPropertiesFile = rootProject.file('keystore.properties')
+if (signingPropertiesFile.exists()) {
+  signingPropertiesFile.withInputStream { signingProperties.load(it) }
+}
+def signingValue = { String propertyName, String environmentName ->
+  signingProperties.getProperty(propertyName) ?: System.getenv(environmentName)
+}
+def releaseStoreFile = signingValue('storeFile', 'ANDROID_KEYSTORE_FILE')
+def releaseStorePassword = signingValue('storePassword', 'ANDROID_KEYSTORE_PASSWORD')
+def releaseKeyAlias = signingValue('keyAlias', 'ANDROID_KEY_ALIAS')
+def releaseKeyPassword = signingValue('keyPassword', 'ANDROID_KEY_PASSWORD')
+def releaseSigningValues = [releaseStoreFile, releaseStorePassword, releaseKeyAlias, releaseKeyPassword]
+def releaseTaskRequested = gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }
+
+if (releaseTaskRequested && releaseSigningValues.any { !it }) {
+  throw new GradleException('Release signing is required. Configure ignored keystore.properties or ANDROID_KEYSTORE_* environment variables.')
+}
+if (releaseTaskRequested && !rootProject.file(releaseStoreFile).isFile()) {
+  throw new GradleException("Release keystore file does not exist: ${releaseStoreFile}")
+}
 
 android {
   namespace "com.krug"
@@ -20,15 +44,32 @@ android {
     applicationId "com.krug"
     minSdk rootProject.ext.minSdkVersion
     targetSdk rootProject.ext.targetSdkVersion
-    versionCode 1
-    versionName "0.1.0"
+    versionCode releaseVersionCode
+    versionName releaseVersionName
     buildConfigField "String", "KRUG_API_URL", "\"${apiUrl}\""
     buildConfigField "String", "KRUG_WS_URL", "\"${wsUrl}\""
+    buildConfigField "int", "KRUG_VERSION_CODE", "${releaseVersionCode}"
+    buildConfigField "String", "KRUG_VERSION_NAME", "\"${releaseVersionName}\""
+  }
+
+  signingConfigs {
+    if (releaseSigningValues.every { it }) {
+      release {
+        storeFile rootProject.file(releaseStoreFile)
+        storePassword releaseStorePassword
+        keyAlias releaseKeyAlias
+        keyPassword releaseKeyPassword
+        enableV1Signing true
+        enableV2Signing true
+      }
+    }
   }
 
   buildTypes {
     debug { }
     release {
+      // Never fall back to the Android debug key for production artifacts.
+      signingConfig releaseSigningValues.every { it } ? signingConfigs.release : null
       minifyEnabled enableProguardInReleaseBuilds
       proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
     }

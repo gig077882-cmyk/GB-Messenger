@@ -15,6 +15,7 @@ import {ApiClient} from './api';
 import {clearTokens, loadTokens, saveTokens} from './storage';
 import type {Chat, Message, User} from './types';
 import {KrugWebSocket} from './ws';
+import {checkForUpdate} from './update';
 
 export default function App() {
   const [token, setToken] = useState<string | null>(null);
@@ -65,6 +66,7 @@ export default function App() {
   }, [token, ws, activeChat]);
 
   useEffect(() => () => ws.disconnect(), [ws]);
+  useEffect(() => { checkForUpdate({silent: true}); }, []);
 
   const completeAuth = async (accessToken: string, authenticatedUser: User) => {
     await saveTokens({accessToken});

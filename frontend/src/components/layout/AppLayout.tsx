@@ -6,6 +6,7 @@ import { useWsEvents } from '@/hooks/useWsEvents';
 import { ChatsSidebar } from '@/components/chats/ChatsSidebar';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { CallOverlay } from '@/components/calls/CallOverlay';
+import { UploadQueue } from '@/components/ui/UploadQueue';
 import styles from './AppLayout.module.css';
 
 export function AppLayout() {
@@ -42,6 +43,7 @@ export function AppLayout() {
       </nav>
 
       <CallOverlay />
+      <UploadQueue />
     </div>
   );
 }

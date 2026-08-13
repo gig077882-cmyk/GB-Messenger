@@ -6,6 +6,7 @@
   overflow: hidden;
 }
 
+/* Messages area — subtle dot-pattern wallpaper */
 .messages {
   flex: 1;
   overflow-y: auto;
@@ -13,6 +14,13 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  background-image: radial-gradient(
+    circle,
+    var(--color-primary-alpha, rgba(103,80,164,0.10)) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+  background-position: 0 0;
 }
 
 .loadingMore {
@@ -22,11 +30,22 @@
   padding: 8px;
 }
 
+/* Empty state — icon placeholder via ::before */
 .empty {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   color: var(--color-text-3);
   font-size: 1rem;
+  gap: 12px;
+}
+
+.empty::before {
+  content: '💬';
+  font-size: 3rem;
+  opacity: 0.35;
+  display: block;
+  filter: grayscale(0.4);
 }

@@ -1,9 +1,87 @@
-.composerWrap { background:var(--color-surface); border-top:1px solid var(--color-border); padding:8px 12px; flex-shrink:0; }
+/* Composer wrap — glass effect */
+.composerWrap {
+  background: var(--glass-bg, var(--color-surface));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--glass-border, var(--color-border));
+  padding: 8px 12px;
+  flex-shrink: 0;
+}
+
 .composer { display:flex; align-items:flex-end; gap:6px; }
-.composer textarea { resize:none; min-height:40px; max-height:120px; border-radius:20px; padding:10px 14px; background:var(--color-surface-2); border-color:transparent; flex:1; }
+
+/* Textarea — focus glow */
+.composer textarea {
+  resize: none;
+  min-height: 40px;
+  max-height: 120px;
+  border-radius: 20px;
+  padding: 10px 14px;
+  background: var(--color-surface-2);
+  border-color: transparent;
+  flex: 1;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.composer textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-alpha, rgba(103,80,164,0.14));
+}
+
 .fileInput { display:none; }
-.replying { display:flex; justify-content:space-between; align-items:center; border-left:3px solid var(--color-accent); padding:4px 6px; margin-bottom:7px; }
-.replying div { display:flex; flex-direction:column; min-width:0; }.replying b{font-size:.72rem;color:var(--color-primary)}.replying span{font-size:.8rem;color:var(--color-text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
-.upload { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:8px; font-size:.75rem; padding:6px; background:var(--color-surface-2); border-radius:var(--radius-sm); margin-bottom:7px; }.upload small{color:var(--color-text-2)}
-.progress { height:5px; min-width:30px; background:var(--color-border); border-radius:5px; overflow:hidden; }.progress i{display:block;height:100%;background:var(--color-primary);transition:width .2s}
-.recording { color:var(--color-error); font-weight:700; font-size:.76rem; white-space:nowrap; }.uploadMeta{display:block;color:var(--color-text-3);font-size:.65rem;margin:4px 4px 0}
+
+/* Reply preview — softer glass style */
+.replying {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 3px solid var(--color-accent);
+  padding: 5px 8px;
+  margin-bottom: 7px;
+  background: var(--color-primary-alpha, rgba(103,80,164,0.07));
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.replying div { display:flex; flex-direction:column; min-width:0; }
+.replying b { font-size:.72rem; color:var(--color-primary); }
+.replying span { font-size:.8rem; color:var(--color-text-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:300px; }
+
+/* Upload — slide-in animation + left accent bar */
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.upload {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  font-size: .75rem;
+  padding: 6px 6px 6px 10px;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-primary);
+  margin-bottom: 7px;
+  animation: slideInUp 0.2s var(--easing-spring, cubic-bezier(0.34,1.56,0.64,1)) both;
+}
+.upload small { color:var(--color-text-2); }
+
+/* Progress bar — gradient fill */
+.progress {
+  height: 5px;
+  min-width: 30px;
+  background: var(--color-border);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.progress i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light, #9A82DB));
+  transition: width .2s ease;
+  border-radius: 5px;
+}
+
+.recording { color:var(--color-error); font-weight:700; font-size:.76rem; white-space:nowrap; }
+.uploadMeta { display:block; color:var(--color-text-3); font-size:.65rem; margin:4px 4px 0; }

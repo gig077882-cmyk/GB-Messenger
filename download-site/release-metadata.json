@@ -1,0 +1,11 @@
+{
+    "applicationId":  "com.krug",
+    "versionName":  "0.1.0",
+    "versionCode":  1,
+    "variant":  "release",
+    "minSdk":  24,
+    "targetSdk":  35,
+    "apk":  "GB-Messenger-0.1.0-release.apk",
+    "sha256":  "3a8ec4698368f6cc91f8331b3ae5ead3c27dd14ebb6947766c12c359eab775fd",
+    "signing":  "APK Signature Scheme v2; one production signer"
+}

@@ -38,6 +38,19 @@ export async function buildApp(options:{config?:Partial<Config>,db?:Db}={}){
  const assertCallAvailable=(userId:string,callId?:string)=>{const row=db.prepare("SELECT cp.call_id FROM call_participants cp JOIN calls c ON c.id=cp.call_id WHERE (cp.left_at IS NULL OR cp.left_at>?) AND c.status IN ('ringing','active') AND (? IS NULL OR cp.call_id<>?) LIMIT 1").get(graceCutoff(),callId??null,callId??null) as any;if(row)throw new AppError(409,'CALL_BUSY','User is already in another active call');};
 
  app.get('/health',async()=>({status:'ok'}));
+ app.get('/api/releases/android/latest',async(req,reply)=>{
+  reply.header('Cache-Control','public, max-age=300');
+  return {
+   platform:'android',
+   version:config.ANDROID_RELEASE_VERSION,
+   versionCode:config.ANDROID_RELEASE_VERSION_CODE,
+   minSupportedVersionCode:config.ANDROID_MIN_VERSION_CODE,
+   downloadUrl:config.ANDROID_RELEASE_URL,
+   sha256:config.ANDROID_RELEASE_SHA256??null,
+   notes:config.ANDROID_RELEASE_NOTES,
+   publishedAt:null,
+  };
+ });
  app.post('/api/auth/bootstrap',{config:{rateLimit:{max:5,timeWindow:'1 hour'}}},async(req,reply)=>{const b=credentials.parse(req.body);if((db.prepare('SELECT count(*) n FROM users').get() as any).n)throw new AppError(409,'ALREADY_INITIALIZED','Owner already exists');const uid=id();db.prepare("INSERT INTO users(id,email,password_hash,display_name,role) VALUES(?,?,?,?, 'owner')").run(uid,b.email,await argon2.hash(b.password),b.displayName);const u=db.prepare('SELECT * FROM users WHERE id=?').get(uid);const t=issue(u);setRefresh(reply,t.refreshToken);return reply.code(201).send({user:clean(u),accessToken:t.accessToken});});
  app.post('/api/auth/register',{config:{rateLimit:{max:10,timeWindow:'1 hour'}}},async(req,reply)=>{const b=credentials.extend({inviteToken:z.string().min(20)}).parse(req.body);const inv=db.prepare('SELECT * FROM invites WHERE token_hash=? AND used_at IS NULL AND expires_at>CURRENT_TIMESTAMP').get(sha256(b.inviteToken)) as any;if(!inv)throw new AppError(400,'INVALID_INVITE','Invite is invalid or expired');if((db.prepare("SELECT count(*) n FROM users WHERE status='active'").get() as any).n>=config.MAX_USERS)throw new AppError(409,'USER_LIMIT','User limit reached');const uid=id();const tx=db.transaction(()=>{db.prepare('INSERT INTO users(id,email,password_hash,display_name,role) VALUES(?,?,?,?,?)').run(uid,b.email,awaitHash,b.displayName,inv.role);db.prepare('UPDATE invites SET used_by=?,used_at=? WHERE id=?').run(uid,now(),inv.id)});const awaitHash=await argon2.hash(b.password);tx();const u=db.prepare('SELECT * FROM users WHERE id=?').get(uid);const t=issue(u);setRefresh(reply,t.refreshToken);return reply.code(201).send({user:clean(u),accessToken:t.accessToken});});
  app.post('/api/auth/login',{config:{rateLimit:{max:10,timeWindow:'15 minutes'}}},async(req,reply)=>{const b=z.object({email:z.string().email(),password:z.string()}).parse(req.body);const u=db.prepare("SELECT * FROM users WHERE email=? AND status='active'").get(b.email) as any;if(!u||!await argon2.verify(u.password_hash,b.password))throw new AppError(401,'INVALID_CREDENTIALS','Invalid email or password');const t=issue(u);setRefresh(reply,t.refreshToken);return {user:clean(u),accessToken:t.accessToken};});
